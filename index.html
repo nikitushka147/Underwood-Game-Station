@@ -2,221 +2,660 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Underwood Game Station 🍺🎮</title>
+
+    <!-- Бібліотека EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- Бібліотека для генерації PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Impact', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: #0a0b10;
-            color: #fff;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
             min-height: 100vh;
+            width: 100vw;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 20px;
-            background-image: 
-                radial-gradient(circle at 20% 20%, rgba(243, 156, 18, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(231, 76, 60, 0.15) 0%, transparent 40%);
+            padding: 15px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
         }
 
-        header {
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            padding: 20px 20px 25px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            max-width: 440px;
+            width: 100%;
             text-align: center;
-            margin: 30px 0 40px 0;
+            z-index: 2;
+            margin: auto;
         }
 
         h1 {
-            font-size: 3rem;
-            color: #f39c12;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(243, 156, 18, 0.5), 3px 3px #c0392b;
+            color: #d35400;
+            font-size: 1.6rem;
             margin-bottom: 10px;
         }
 
-        p.subtitle {
-            font-family: 'Segoe UI', sans-serif;
-            color: #a0a5b5;
-            font-size: 1.1rem;
+        h2 {
+            color: #d35400;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
         }
 
-        .container {
+        p {
+            color: #444;
+            margin-bottom: 18px;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        button, .pdf-btn, .game-link-btn {
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-yes {
+            background-color: #e67e22;
+            color: white;
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+            z-index: 3;
+        }
+
+        .btn-yes:hover, .btn-yes:active {
+            background-color: #d35400;
+            transform: scale(1.05);
+        }
+
+        .btn-no {
+            background-color: #7f8c8d;
+            color: white;
+            position: fixed;
+            transition: left 0.2s ease-out, top 0.2s ease-out;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .game-link-btn {
+            background-color: #27ae60;
+            color: white;
             width: 100%;
-            max-width: 1100px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            padding: 10px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
         }
 
-        /* Картка гри */
-        .card {
-            background: #151722;
-            border: 2px solid #2c3e50;
-            border-radius: 16px;
-            padding: 25px;
+        .game-link-btn:hover {
+            background-color: #219150;
+            transform: scale(1.02);
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #f39c12;
+            border-radius: 10px;
+            outline: none;
+            font-size: 0.95rem;
+            background-color: white;
+            -webkit-appearance: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #d35400;
+        }
+
+        .summary-item {
+            background: #fff5e6;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            text-align: left;
+            border-left: 4px solid #e67e22;
+            font-size: 0.95rem;
+        }
+
+        .status-msg {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .games-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #f39c12;
+        }
+
+        /* А4 ГОРИЗОНТАЛЬНИЙ СЕРТИФІКАТ */
+        #pdf-certificate {
+            display: none;
+            width: 842px;
+            height: 595px;
+            background: #0b2545;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            box-sizing: border-box;
+        }
+
+        .cert-outer-border {
+            border: 3px double #ffffff;
+            padding: 12px;
+            border-radius: 12px;
+            background: #0b2545;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .cert-inner-border {
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            padding: 20px 25px;
+            border-radius: 8px;
+            text-align: center;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            box-sizing: border-box;
         }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 4px;
-            background: linear-gradient(90deg, #f39c12, #e74c3c);
-            opacity: 0;
-            transition: opacity 0.3s;
+        .cert-header-icon {
+            font-size: 36px;
+            margin-bottom: 2px;
         }
 
-        .card:hover {
-            transform: translateY(-8px);
-            border-color: #f39c12;
-            box-shadow: 0 12px 30px rgba(243, 156, 18, 0.25);
-        }
-
-        .card:hover::before {
-            opacity: 1;
-        }
-
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .card-title {
-            font-size: 1.6rem;
-            color: #fff;
-            margin-bottom: 10px;
+        .cert-title {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .card-desc {
-            font-family: 'Segoe UI', sans-serif;
-            color: #95a5a6;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            flex-grow: 1;
-        }
-
-        .btn-play {
+            margin-bottom: 2px;
+            border-bottom: 2px solid #ffffff;
             display: inline-block;
-            text-align: center;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: #fff;
-            text-decoration: none;
-            padding: 14px 20px;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            padding-bottom: 3px;
+        }
+
+        .cert-subtitle {
+            color: #8da9c4;
+            font-size: 14px;
+            font-style: italic;
             letter-spacing: 1px;
+        }
+
+        .cert-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        .cert-item {
+            background: #13315c;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .cert-item strong {
+            color: #8da9c4;
+            display: block;
+            font-size: 10px;
             text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
-            transition: all 0.2s;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
         }
 
-        .btn-play:hover {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
-            transform: scale(1.03);
+        .cert-item span {
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: bold;
         }
 
-        footer {
-            margin-top: 50px;
+        .cert-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .cert-seal {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #0b2545;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            border: 2px dashed #0b2545;
+        }
+
+        .cert-seal span {
+            font-size: 16px;
+            margin-bottom: 1px;
+        }
+
+        .cert-signature {
+            text-align: right;
+            font-size: 11px;
+            color: #8da9c4;
+        }
+
+        .cert-signature-line {
             font-family: 'Segoe UI', sans-serif;
-            color: #555;
-            font-size: 0.9rem;
-            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #ffffff;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
         }
 
-        footer a {
-            color: #f39c12;
-            text-decoration: none;
+        .cert-btn {
+            background: #e67e22;
+            color: white;
+            margin-top: 15px;
+            width: 100%;
         }
 
-        @media (max-width: 600px) {
-            h1 { font-size: 2.2rem; }
-            .container { grid-template-columns: 1fr; }
+        .cert-btn:hover {
+            background: #d35400;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>UNDERWOOD GAME STATION 🍺🎮</h1>
-        <p class="subtitle">Усі фанові проєкти, ігри та крафтовий двіж в одному місці!</p>
-    </header>
-
-    <div class="container">
-
-        <!-- 1. Street Fight -->
-        <div class="card">
-            <div>
-                <span class="card-icon">🥊</span>
-                <h2 class="card-title">Street Fighter</h2>
-                <p class="card-desc">Класичний 2D-файтинг! Обирай Сумоїста або Іноземця, вирубай суперника та отримуй посилання на пиво.</p>
+    <div class="card">
+        <!-- КРОК 1 -->
+        <div id="step-1" class="step active">
+            <h1>Привіт! 🍻</h1>
+            <p>Є одна надзвичайно важлива пропозиція...</p>
+            <h2>Підемо зі мною на пиво?</h2>
+            <div class="btn-group">
+                <button class="btn-yes" onclick="nextStep(2)">ГО! 🍺</button>
             </div>
-            <a href="https://nikitushka147.github.io/StreetFight/" target="_blank" class="btn-play">Грати ⚔️</a>
         </div>
 
-        <!-- 2. Wheel of Fortune -->
-        <div class="card">
-            <div>
-                <span class="card-icon">🎡</span>
-                <h2 class="card-title">Beer Wheel</h2>
-                <p class="card-desc">Колесо Фортуни Underwood! Крути рулетку та випробовуй удачу, щоб дізнатися, яке пиво вип'єш сьогодні.</p>
+        <!-- КРОК 2 -->
+        <div id="step-2" class="step">
+            <h2>Ідеально! 🎉</h2>
+            <p>Тепер давай зберу замовлення на цей вечір:</p>
+
+            <div class="form-group">
+                <label for="username">👤 Твоє ім'я:</label>
+                <input type="text" id="username" placeholder="Введи своє ім'я">
             </div>
-            <a href="https://nikitushka147.github.io/Beer-Wheel-of-Fortune/" target="_blank" class="btn-play">Крутити 🍻</a>
+
+            <div class="form-group">
+                <label for="date">📅 Коли йдемо?</label>
+                <input type="date" id="date">
+            </div>
+
+            <div class="form-group">
+                <label for="time">⏰ О котрій години? (12:00 - 21:00):</label>
+                <input type="time" id="time" min="12:00" max="21:00" value="18:00">
+            </div>
+
+            <div class="form-group">
+                <label for="beer">🍺 Яке пиво п'ємо?</label>
+                <select id="beer">
+                    <option value="PIPA (Pineapple IPA)">PIPA (Pineapple IPA)</option>
+                    <option value="GAIJIN (Tomato Gose)">GAIJIN (Tomato Gose)</option>
+                    <option value="Яблуневий сад (Radler)">Яблуневий сад (Radler)</option>
+                    <option value="DIESEL (Shandy)">DIESEL (Shandy)</option>
+                    <option value="MILKY MANGO (Milkshake IPA)">MILKY MANGO (Milkshake IPA)</option>
+                    <option value="KYIV LAGER (Helles)">KYIV LAGER (Helles)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="snack">🥓 Що по закусках?</label>
+                <select id="snack">
+                    <option value="Джеркі курячі Хуан-лимон">Джеркі курячі Хуан-лимон</option>
+                    <option value="Джеркі курячі з Пармезаном">Джеркі курячі з Пармезаном</option>
+                    <option value="Курячі ковбаски Копчені перці">Курячі ковбаски Копчені перці</option>
+                    <option value="Сухарики з Часником">Сухарики з Часником</option>
+                    <option value="Сухарики Томат-Аджика">Сухарики Томат-Аджика</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="extra">➕ Додатково (за бажанням):</label>
+                <select id="extra" onchange="toggleExtraChoice()">
+                    <option value="Нічого додатково">Нічого додатково</option>
+                    <option value="beer">Ще по келиху пива 🍺</option>
+                    <option value="snack">Подвійна порція закусок 🥓</option>
+                    <option value="Сирна тарілка 🧀">Сирна тарілка 🧀</option>
+                    <option value="Настільні ігри 🎲">Настільні ігри 🎲</option>
+                    <option value="Зіграти у футбол ⚽">Зіграти у футбол ⚽</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="extra-beer-group" style="display: none;">
+                <label for="extra-beer">🍺 Оберіть друге пиво:</label>
+                <select id="extra-beer">
+                    <option value="PIPA (Pineapple IPA)">PIPA (Pineapple IPA)</option>
+                    <option value="GAIJIN (Tomato Gose)">GAIJIN (Tomato Gose)</option>
+                    <option value="Яблуневий сад (Radler)">Яблуневий сад (Radler)</option>
+                    <option value="DIESEL (Shandy)">DIESEL (Shandy)</option>
+                    <option value="MILKY MANGO (Milkshake IPA)">MILKY MANGO (Milkshake IPA)</option>
+                    <option value="KYIV LAGER (Helles)">KYIV LAGER (Helles)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="extra-snack-group" style="display: none;">
+                <label for="extra-snack">🥓 Оберіть другу закуску:</label>
+                <select id="extra-snack">
+                    <option value="Джеркі курячі Хуан-лимон">Джеркі курячі Хуан-лимон</option>
+                    <option value="Джеркі курячі з Пармезаном">Джеркі курячі з Пармезаном</option>
+                    <option value="Курячі ковбаски Копчені перці">Курячі ковбаски Копчені перці</option>
+                    <option value="Сухарики з Часником">Сухарики з Часником</option>
+                    <option value="Сухарики Томат-Аджика">Сухарики Томат-Аджика</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="place">📍 Де сидимо?</label>
+                <select id="place">
+                    <option value="Underwood Drinks Boutique">Underwood Drinks Boutique</option>
+                </select>
+            </div>
+
+            <button class="btn-yes" style="width: 100%; margin-top: 5px;" onclick="finishPlanner()">Зафіксувати план 🍻</button>
         </div>
 
-        <!-- 3. Beer Quiz -->
-        <div class="card">
-            <div>
-                <span class="card-icon">🧠</span>
-                <h2 class="card-title">Underwood Quiz</h2>
-                <p class="card-desc">Пивний квіз на знання крафтової культури та сортів Underwood. Перевір свій рівень пивного сомельє!</p>
+        <!-- КРОК 3 -->
+        <div id="step-3" class="step">
+            <h2>До зустрічі! 🥳</h2>
+            <p>Дзенькнемо бокалами в Underwood Drinks Boutique вже зовсім скоро!</p>
+            <div id="summary"></div>
+            
+            <button class="pdf-btn cert-btn" onclick="downloadPDF()">Завантажити Сертифікат PDF 📜</button>
+            
+            <!-- ІНТЕГРОВАНЕ ПОСИЛАННЯ НА МІКРО-ФУТБОЛ -->
+            <div class="games-section">
+                <h3>🎮 Underwood Game Station</h3>
+                <p style="font-size: 0.85rem; margin-bottom: 10px; color: #666;">Поки чекаєш зустрічі — забий 3 голи й отримай знижку на набір!</p>
+                <a href="https://nikitushka147.github.io/Soccer-Mini-Game/" target="_blank" class="game-link-btn">Зіграти в «Пенальті» ⚽🍺</a>
             </div>
-            <a href="https://nikitushka147.github.io/underwood-beer-quiz/" target="_blank" class="btn-play">Пройти Квіз 📝</a>
-        </div>
 
-        <!-- 4. Game Drink Donate -->
-        <div class="card">
-            <div>
-                <span class="card-icon">🍻</span>
-                <h2 class="card-title">Drink & Donate</h2>
-                <p class="card-desc">Поєднуємо приємне з корисним! Ігрова механіка з донатами для підтримки та гарного настрою.</p>
-            </div>
-            <a href="https://nikitushka147.github.io/Game-Drink-Donate/" target="_blank" class="btn-play">Зайти 💛💙</a>
+            <div id="email-status" class="status-msg"></div>
         </div>
-
-        <!-- 5. Secret Project -->
-        <div class="card">
-            <div>
-                <span class="card-icon">🚀</span>
-                <h2 class="card-title">Secret Zone (-)</h2>
-                <p class="card-desc">Секретна кімната та експериментальний проєкт. Заходь, якщо не боїшся несподіванок!</p>
-            </div>
-            <a href="https://nikitushka147.github.io/-/" target="_blank" class="btn-play">Відкрити ⚡</a>
-        </div>
-
     </div>
 
-    <footer>
-        <p>Створено для любителів якісного крафту 🍻 | <a href="https://github.com/nikitushka147" target="_blank">GitHub Profile</a></p>
-    </footer>
+    <!-- Кнопка "Ні" -->
+    <button class="btn-no" id="no-btn">Ні, я зожник 🥦</button>
 
+    <!-- СЕРТИФІКАТ -->
+    <div id="pdf-certificate">
+        <div class="cert-outer-border">
+            <div class="cert-inner-border">
+                <div>
+                    <div class="cert-header-icon">🍺✨</div>
+                    <div class="cert-title">Сертифікат</div>
+                    <div class="cert-subtitle">на офіційну пивну здибанку</div>
+                </div>
+
+                <div class="cert-body">
+                    <div class="cert-item">
+                        <strong>Почесний Гість</strong>
+                        <span id="pdf-name"></span>
+                    </div>
+                    <div class="cert-item">
+                        <strong>Локація</strong>
+                        <span id="pdf-place"></span>
+                    </div>
+                    <div class="cert-item">
+                        <strong>Дата проведення</strong>
+                        <span id="pdf-date"></span>
+                    </div>
+                    <div class="cert-item">
+                        <strong>Час зустрічі</strong>
+                        <span id="pdf-time"></span>
+                    </div>
+                    <div class="cert-item">
+                        <strong>Основне пиво</strong>
+                        <span id="pdf-beer"></span>
+                    </div>
+                    <div class="cert-item">
+                        <strong>Закуска</strong>
+                        <span id="pdf-snack"></span>
+                    </div>
+                    <div class="cert-item" id="pdf-extra-item" style="grid-column: span 2;">
+                        <strong>Додатковий бонус</strong>
+                        <span id="pdf-extra"></span>
+                    </div>
+                </div>
+
+                <div class="cert-footer">
+                    <div class="cert-seal">
+                        <span>🍻</span>
+                        Approved
+                    </div>
+                    <div class="cert-signature">
+                        Офіційно затверджено
+                        <div class="cert-signature-line">Underwood Game Station</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('no-btn');
+
+        window.addEventListener('load', () => {
+            const yesBtn = document.querySelector('.btn-yes');
+            const rect = yesBtn.getBoundingClientRect();
+            noBtn.style.left = `${Math.min(rect.right + 15, window.innerWidth - 120)}px`;
+            noBtn.style.top = `${rect.top}px`;
+        });
+
+        function moveButton() {
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+            const padding = 15;
+
+            const maxLeft = screenWidth - btnWidth - padding;
+            const maxTop = screenHeight - btnHeight - padding;
+
+            const randomLeft = Math.max(padding, Math.floor(Math.random() * maxLeft));
+            const randomTop = Math.max(padding, Math.floor(Math.random() * maxTop));
+
+            noBtn.style.left = `${randomLeft}px`;
+            noBtn.style.top = `${randomTop}px`;
+        }
+
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveButton();
+        });
+
+        function nextStep(stepNumber) {
+            if(stepNumber > 1) {
+                noBtn.style.display = 'none';
+            }
+
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+        }
+
+        function toggleExtraChoice() {
+            const extraVal = document.getElementById('extra').value;
+            const beerGroup = document.getElementById('extra-beer-group');
+            const snackGroup = document.getElementById('extra-snack-group');
+
+            if (extraVal === 'beer') {
+                beerGroup.style.display = 'block';
+                snackGroup.style.display = 'none';
+            } else if (extraVal === 'snack') {
+                snackGroup.style.display = 'block';
+                beerGroup.style.display = 'none';
+            } else {
+                beerGroup.style.display = 'none';
+                snackGroup.style.display = 'none';
+            }
+        }
+
+        function finishPlanner() {
+            const username = document.getElementById('username').value || 'Друже';
+            const date = document.getElementById('date').value || 'Сьогодні/Завтра';
+            const time = document.getElementById('time').value || '18:00';
+            const beer = document.getElementById('beer').value;
+            const snack = document.getElementById('snack').value;
+            const extraSelect = document.getElementById('extra');
+            const place = document.getElementById('place').value;
+
+            let extraText = extraSelect.value;
+            let showExtraInCert = true;
+
+            if (extraSelect.value === 'Нічого додатково') {
+                showExtraInCert = false;
+            } else if (extraSelect.value === 'beer') {
+                const secondBeer = document.getElementById('extra-beer').value;
+                extraText = `Ще по келиху: ${secondBeer} 🍺`;
+            } else if (extraSelect.value === 'snack') {
+                const secondSnack = document.getElementById('extra-snack').value;
+                extraText = `Додаткова закуска: ${secondSnack} 🥓`;
+            }
+
+            const summaryHTML = `
+                <div class="summary-item"><strong>👤 Ім'я:</strong> ${username}</div>
+                <div class="summary-item"><strong>📅 Дата:</strong> ${date}</div>
+                <div class="summary-item"><strong>⏰ Час:</strong> ${time}</div>
+                <div class="summary-item"><strong>🍺 Напій:</strong> ${beer}</div>
+                <div class="summary-item"><strong>🥓 Закуска:</strong> ${snack}</div>
+                ${showExtraInCert ? `<div class="summary-item"><strong>➕ Додатково:</strong> ${extraText}</div>` : ''}
+                <div class="summary-item"><strong>📍 Локація:</strong> ${place}</div>
+            `;
+            document.getElementById('summary').innerHTML = summaryHTML;
+
+            document.getElementById('pdf-name').innerText = username;
+            document.getElementById('pdf-date').innerText = date;
+            document.getElementById('pdf-time').innerText = time;
+            document.getElementById('pdf-beer').innerText = beer;
+            document.getElementById('pdf-snack').innerText = snack;
+            document.getElementById('pdf-place').innerText = place;
+
+            const extraItem = document.getElementById('pdf-extra-item');
+            if (showExtraInCert) {
+                document.getElementById('pdf-extra').innerText = extraText;
+                extraItem.style.display = 'block';
+            } else {
+                extraItem.style.display = 'none';
+            }
+
+            nextStep(3);
+
+            const PUBLIC_KEY = "ТВІЙ_PUBLIC_KEY"; 
+            const SERVICE_ID = "ТВІЙ_SERVICE_ID"; 
+            const TEMPLATE_ID = "ТВІЙ_TEMPLATE_ID"; 
+
+            emailjs.init(PUBLIC_KEY);
+
+            const templateParams = {
+                username: username,
+                date: date,
+                time: time,
+                beer: beer,
+                snack: snack,
+                extra: showExtraInCert ? extraText : 'Нічого додатково',
+                place: place
+            };
+
+            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+                .then(function(response) {
+                    document.getElementById('email-status').innerText = "📩 Деталі надіслано!";
+                }, function(error) {
+                    console.log('Помилка відправки:', error);
+                });
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('pdf-certificate');
+            element.style.display = 'block';
+
+            const opt = {
+                margin:       0,
+                filename:     'Beer_Certificate.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, width: 842, height: 595 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
+            });
+        }
+    </script>
 </body>
 </html>
