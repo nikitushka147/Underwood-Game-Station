@@ -2,175 +2,244 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Underwood Game Station 🎮🍺</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Underwood Arcade & Beer Hub 🍺🎮</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
+            font-family: 'Impact', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: #090d16;
-            color: #f8fafc;
+            background: #0a0b10;
+            color: #fff;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            padding: 15px;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(243, 156, 18, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(231, 76, 60, 0.15) 0%, transparent 40%);
         }
 
-        /* Верхня панель / Заголовок */
         header {
             text-align: center;
-            margin-bottom: 15px;
+            margin: 30px 0 40px 0;
         }
 
-        header h1 {
-            color: #f59e0b;
-            font-size: 1.8rem;
+        h1 {
+            font-size: 3rem;
+            color: #f39c12;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(243, 156, 18, 0.5), 3px 3px #c0392b;
+            margin-bottom: 10px;
         }
 
-        header p {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-top: 2px;
+        p.subtitle {
+            font-family: 'Segoe UI', sans-serif;
+            color: #a0a5b5;
+            font-size: 1.1rem;
         }
 
-        /* Перемикач ігор (Таби) */
-        .tab-controls {
-            display: flex;
-            gap: 10px;
-            background: #1e293b;
-            padding: 6px;
-            border-radius: 14px;
-            border: 1px solid #334155;
-            margin-bottom: 15px;
+        .container {
             width: 100%;
-            max-width: 480px;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 10px;
         }
 
-        .tab-btn {
-            flex: 1;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 10px;
-            background: transparent;
-            color: #94a3b8;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.25s ease;
+        .card {
+            background: #151722;
+            border: 2px solid #2c3e50;
+            border-radius: 16px;
+            padding: 25px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .tab-btn:hover {
-            color: #f8fafc;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        }
-
-        /* Контейнер для гри (Iframe) */
-        .game-view {
-            width: 100%;
-            max-width: 480px;
-            height: calc(100vh - 150px);
-            max-height: 800px;
-            background: #0f172a;
-            border-radius: 20px;
-            border: 3px solid #334155;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            overflow: hidden;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, #f39c12, #e74c3c);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: #f39c12;
+            box-shadow: 0 12px 30px rgba(243, 156, 18, 0.25);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
             display: block;
         }
 
-        /* Прямі посилання знизу */
+        .card-title {
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-desc {
+            font-family: 'Segoe UI', sans-serif;
+            color: #95a5a6;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .btn-play {
+            display: inline-block;
+            text-align: center;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 20px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            transition: all 0.2s;
+        }
+
+        .btn-play:hover {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+            transform: scale(1.03);
+        }
+
         footer {
-            margin-top: 15px;
-            font-size: 0.75rem;
-            color: #64748b;
+            margin-top: 50px;
+            font-family: 'Segoe UI', sans-serif;
+            color: #555;
+            font-size: 0.9rem;
             text-align: center;
         }
 
         footer a {
-            color: #f59e0b;
+            color: #f39c12;
             text-decoration: none;
-            margin: 0 5px;
         }
 
-        footer a:hover {
-            text-decoration: underline;
+        @media (max-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            .container { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Underwood Game Station 🎮</h1>
-        <p>Обирай гру та розважайся разом із крафтом!</p>
+        <h1>UNDERWOOD ARCADE 🍺🎮</h1>
+        <p class="subtitle">Усі фанові проєкти, ігри та крафтовий движ в одному місці!</p>
     </header>
 
-    <!-- Кнопки перемикання -->
-    <div class="tab-controls">
-        <button class="tab-btn active" onclick="switchGame('crafter', this)">
-            <span>🍺</span> Beer Crafter
-        </button>
-        <button class="tab-btn" onclick="switchGame('fishing', this)">
-            <span>🎣</span> Fishing
-        </button>
-    </div>
-
-    <!-- Екран гри -->
-    <div class="game-view">
-        <iframe id="gameFrame" src="https://nikitushka147.github.io/Underwood-Beer-Crafter/" title="Underwood Game"></iframe>
+    <div class="container" id="gamesContainer">
+        <!-- Ігри рендеряться автоматично через JS -->
     </div>
 
     <footer>
-        Відкрити окремо: 
-        <a href="https://nikitushka147.github.io/Underwood-Beer-Crafter/" target="_blank">Beer Crafter</a> | 
-        <a href="https://nikitushka147.github.io/Underwood-Fishing/" target="_blank">Fishing</a>
+        <p>Створено для любителів якісного крафту 🍻 | <a href="https://github.com/nikitushka147" target="_blank">GitHub Profile</a></p>
     </footer>
 
     <script>
-        const games = {
-            crafter: "https://nikitushka147.github.io/Underwood-Beer-Crafter/",
-            fishing: "https://nikitushka147.github.io/Underwood-Fishing/"
-        };
-
-        function switchGame(gameKey, btn) {
-            const iframe = document.getElementById('gameFrame');
-            
-            // Зміна активної кнопки
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Перемикання джерела iframe
-            if (games[gameKey]) {
-                iframe.src = games[gameKey];
+        // СПИСОК УСІХ ІГОР HUB
+        const games = [
+            {
+                title: "Underwood Fishing",
+                icon: "🎣",
+                desc: "Лови хаотичні баночки Calm Drink та інші сорту Underwood у водоймі!",
+                link: "https://nikitushka147.github.io/Underwood-Fishing/",
+                btnText: "Рибалити 🎣"
+            },
+            {
+                title: "Beer Crafter",
+                icon: "🍺",
+                desc: "Створюй власний крафт! Вари унікальні сорти пива та розвивай броварню.",
+                link: "https://nikitushka147.github.io/Underwood-Beer-Crafter/",
+                btnText: "Варити 🍺"
+            },
+            {
+                title: "Penalty Shootout",
+                icon: "⚽",
+                desc: "Футбольний челендж! Забий 3 пенальті голкіперу та забирай посилання на крафтовий дегустаційний набір.",
+                link: "https://nikitushka147.github.io/Soccer-Mini-Game/",
+                btnText: "Забити Гол ⚽"
+            },
+            {
+                title: "Street Fighter",
+                icon: "🥊",
+                desc: "Класичний 2D-файтинг! Обирай Сумоїста або Іноземця, вирубай суперника та отримуй посилання на пиво.",
+                link: "https://nikitushka147.github.io/StreetFight/",
+                btnText: "Грати ⚔️"
+            },
+            {
+                title: "Beer Wheel",
+                icon: "🎡",
+                desc: "Колесо Фортуни Underwood! Крути рулетку та випробовуй удачу, щоб дізнатися, яке пиво вип'єш сьогодні.",
+                link: "https://nikitushka147.github.io/Beer-Wheel-of-Fortune/",
+                btnText: "Крутити 🍻"
+            },
+            {
+                title: "Underwood Quiz",
+                icon: "🧠",
+                desc: "Пивний квіз на знання крафтової культури та сортів Underwood. Перевір свій рівень пивного сомельє!",
+                link: "https://nikitushka147.github.io/underwood-beer-quiz/",
+                btnText: "Пройти Квіз 📝"
+            },
+            {
+                title: "Drink & Donate",
+                icon: "🍻",
+                desc: "Поєднуємо приємне з корисним! Ігрова механіка з донатами для підтримки та гарного настрою.",
+                link: "https://nikitushka147.github.io/Game-Drink-Donate/",
+                btnText: "Зайти 💛💙"
+            },
+            {
+                title: "Secret Zone (-)",
+                icon: "🚀",
+                desc: "Секретна кімната та експериментальний проєкт. Заходь, якщо не боїшся несподіванок!",
+                link: "https://nikitushka147.github.io/-/",
+                btnText: "Відкрити ⚡"
             }
-        }
+        ];
+
+        // Рендеринг карток
+        const container = document.getElementById('gamesContainer');
+        container.innerHTML = games.map(game => `
+            <div class="card">
+                <div>
+                    <span class="card-icon">${game.icon}</span>
+                    <h2 class="card-title">${game.title}</h2>
+                    <p class="card-desc">${game.desc}</p>
+                </div>
+                <a href="${game.link}" target="_blank" class="btn-play">${game.btnText}</a>
+            </div>
+        `).join('');
     </script>
 </body>
 </html>
